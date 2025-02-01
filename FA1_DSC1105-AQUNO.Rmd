@@ -1,0 +1,117 @@
+---
+title: "DSC1105_FA1"
+author: "Leiana Mari D. Aquino"
+date: "2025-01-27"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# EDA_1 : The CyTOF One Experiment Data
+
+## Libraries and Database Loading
+
+### Environment Set-up
+
+The following code is written in R. The packages are pre-written functionality to perform necessary tasks.
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+# install necessary R libraries
+library(tidyverse) # data manipulation
+library(dplyr)
+library(ggpubr) # publication ready plots
+library(ggplot2) # data visualization
+library(knitr) # data visualization
+library(kableExtra)
+```
+
+### Import the data
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+# load the data using read_csv()
+data <- read_csv("cytof_one_experiment.csv")
+
+# view the first six data frame records
+six_data_head <- head(data,6)
+
+# print the sum_data_head
+kbl(six_data_head) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+
+```
+
+### Summary of the data
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+# summarize the data
+sum_data <- summary(data)
+
+# print the sum_data
+kbl(sum_data) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+
+```
+
+## The NKp30 Data Distribution Plots
+
+From the `cytof_one_experiment.csv` data, we will extract the `NKp30` column to make two plots showing its distribution of the values.
+
+### Empirical Cumulative Distribution Function (ECDF)
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+# extract/grab the column containing the data
+NKp30 <- data$NKp30
+
+# ECDF plot using ggplot2 package
+cytof.gg <- ggplot(data, aes(x = NKp30)) + 
+  stat_ecdf(geom="step", color="#1f6e34") +
+  labs(title = "ECDF of NKp30 from CyTOF data", x = "NKp30", y = "ECDF")
+cytof.gg
+
+```
+
+| **Interpretation**: This plot show the ECDF of the values in NKP30. A concentration of values from ranges 2 to 4 rises steeply but as it enters the range of 6, the curve became relatively flat indicating fewer data points or gaps in the distribution.
+
+------------------------------------------------------------------------
+
+### Density Estimate
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+# extract/grab the column containing the data
+NKp30 <- data$NKp30
+
+# density estimate plot using ggplot2 package
+density_est.gg <- ggplot(data, aes(x = NKp30)) + 
+  geom_density(adjust = .5, fill="#77bd89", color="#1f6e34", alpha=0.8) +
+  geom_rug(aes(y = 0), sides = "b", position = position_jitter(height = 0)) +
+  labs(title = "Density Estimate of NKp30 from CyTOF data", x = "NKp30", y = "Density")
+density_est.gg
+
+```
+
+| **Interpretation**: This plot provides a smoothed estimate of the distribution of NKp30. The highest density is around NKp30 = 4, thus, suggesting that most of the values are concentrated in the middle range, with fewer values at the extremes.
+
+## Q-Q Plots
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+
+# qq plot using ggplot2 package
+qq_plot.gg <- ggplot(data) +
+  stat_qq(aes(sample = NKp30), color = "#316da6") +  # qq plot for column1
+  stat_qq(aes(sample = KIR3DL1), color = "#1f6e34") + # qq plot for column2
+  stat_qq_line(aes(sample = NKp30), color = "#e87c45") +  # reference line for column1
+  labs(title = "Q-Q Plot Comparing NKp30 and KIR3DL1",
+       x = "NKp30",
+       y = "KIR3DL1") 
+qq_plot.gg
+
+```
+
+| **Interpretation**: This QQ plot compares the quantiles NKp30 and KIR3DL1 in order to assess whether the two data sets have similar distributions. Based on the provided plot, only the NKp30 (blue-colored) plot lies close to the reference line while the KIR3DL1 (green-colored) plot deviates from the line. These indicates that there are differences in the distributions of the points, for instance, NKp30 is curved pattern while KIR3DL1 is curved in a S-shape.
